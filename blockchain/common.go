@@ -24,6 +24,7 @@ var blockchains = []string{
 	ONT,
 	BSC,
 	NEAR,
+	CFX,
 }
 
 type Params struct {
@@ -47,6 +48,8 @@ func CreateJsonManager(t subscriber.Type, sub store.Subscription) (subscriber.Js
 		return createSubstrateManager(t, sub)
 	case NEAR:
 		return createNearManager(t, sub)
+	case CFX:
+		return createCfxManager(t, sub), nil
 	}
 
 	return nil, fmt.Errorf("unknown blockchain type %v for JSON manager", sub.Endpoint.Type)
@@ -70,6 +73,8 @@ func GetConnectionType(endpoint store.Endpoint) (subscriber.Type, error) {
 	// Add blockchain implementations that encapsulate entire connection here
 	case XTZ, ONT:
 		return subscriber.Client, nil
+	case CFX:
+		return subscriber.RPC, nil
 	default:
 		u, err := url.Parse(endpoint.Url)
 		if err != nil {
@@ -121,6 +126,10 @@ func GetValidations(t string, params Params) []int {
 		return []int{
 			len(params.AccountIds),
 		}
+	case CFX:
+		return []int{
+			len(params.Addresses) + len(params.Topics),
+		}
 	}
 
 	return nil
@@ -152,6 +161,11 @@ func CreateSubscription(sub *store.Subscription, params Params) {
 	case NEAR:
 		sub.NEAR = store.NEARSubscription{
 			AccountIds: params.AccountIds,
+		}
+	case CFX:
+		sub.Ethereum = store.EthSubscription{
+			Addresses: params.Addresses,
+			Topics:    params.Topics,
 		}
 	}
 }

@@ -73,8 +73,6 @@ func GetConnectionType(endpoint store.Endpoint) (subscriber.Type, error) {
 	// Add blockchain implementations that encapsulate entire connection here
 	case XTZ, ONT:
 		return subscriber.Client, nil
-	case CFX:
-		return subscriber.RPC, nil
 	default:
 		u, err := url.Parse(endpoint.Url)
 		if err != nil {
